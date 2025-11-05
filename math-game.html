@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Matematika Anak SD</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #a8e6cf, #dcedc1);
+      font-family: "Comic Sans MS", cursive;
+      min-height: 100vh;
+    }
+    .game-card {
+      max-width: 400px;
+      margin: auto;
+      margin-top: 50px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      background-color: #fff;
+      padding: 30px;
+    }
+    .number {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .result {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container text-center">
+    <div class="game-card">
+      <h2 class="mb-3 text-primary">🎮 Game Matematika 🎮</h2>
+      <p>Hitung hasilnya dengan benar!</p>
+
+      <div class="my-4">
+        <span id="num1" class="number text-success">3</span>
+        <span id="operator" class="number text-dark">+</span>
+        <span id="num2" class="number text-success">5</span>
+        <span class="number text-dark">=</span>
+        <input type="number" id="answer" class="form-control d-inline-block" style="width: 100px; font-size: 1.5rem; text-align: center;">
+      </div>
+
+      <button class="btn btn-primary btn-lg" onclick="checkAnswer()">Cek Jawaban ✅</button>
+      <div id="result" class="result mt-3"></div>
+
+      <hr>
+      <button class="btn btn-success" onclick="newQuestion()">Soal Baru 🔄</button>
+    </div>
+  </div>
+
+  <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b4e17b91b2.mp3?filename=correct-2-46134.mp3"></audio>
+  <audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7a97a0f77f.mp3?filename=wrong-47985.mp3"></audio>
+
+  <script>
+    let num1, num2, operator, correctAnswer;
+
+    function newQuestion() {
+      num1 = Math.floor(Math.random() * 10) + 1;
+      num2 = Math.floor(Math.random() * 10) + 1;
+      operator = Math.random() > 0.5 ? '+' : '-';
+
+      // pastikan tidak hasil negatif untuk pengurangan
+      if (operator === '-' && num1 < num2) [num1, num2] = [num2, num1];
+
+      correctAnswer = operator === '+' ? num1 + num2 : num1 - num2;
+
+      document.getElementById('num1').textContent = num1;
+      document.getElementById('num2').textContent = num2;
+      document.getElementById('operator').textContent = operator;
+      document.getElementById('answer').value = '';
+      document.getElementById('result').textContent = '';
+    }
+
+    function checkAnswer() {
+      const answer = parseInt(document.getElementById('answer').value);
+      const resultEl = document.getElementById('result');
+      const correctSound = document.getElementById('correctSound');
+      const wrongSound = document.getElementById('wrongSound');
+
+      if (answer === correctAnswer) {
+        resultEl.textContent = "🎉 Hebat! Jawaban kamu benar!";
+        resultEl.classList.add('text-success');
+        resultEl.classList.remove('text-danger');
+        correctSound.play();
+      } else {
+        resultEl.textContent = "😢 Coba lagi, jawabannya " + correctAnswer;
+        resultEl.classList.add('text-danger');
+        resultEl.classList.remove('text-success');
+        wrongSound.play();
+      }
+    }
+
+    newQuestion();
+  </script>
+</body>
+</html>
