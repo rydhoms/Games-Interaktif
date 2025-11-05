@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game IPA: Sistem Pencernaan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f0f9ff;
+      font-family: 'Comic Sans MS', sans-serif;
+      padding: 20px;
+    }
+    .organ {
+      background-color: #fff;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 5px;
+      text-align: center;
+      font-size: 18px;
+      cursor: grab;
+    }
+    .dropzone {
+      border: 2px dashed #6c757d;
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 60px;
+      background: #ffffff90;
+      margin-bottom: 10px;
+    }
+    .correct {
+      background-color: #d4edda;
+      border-color: #28a745;
+    }
+    .wrong {
+      background-color: #f8d7da;
+      border-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center mb-3">🧠 Game IPA: Urutkan Organ Pencernaan</h2>
+    <p class="text-center">Tarik dan letakkan organ di bawah ini sesuai urutan makanan masuk ke tubuh!</p>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h5 class="text-primary">Organ:</h5>
+        <div id="organs" class="d-flex flex-wrap"></div>
+      </div>
+
+      <div class="col-md-6">
+        <h5 class="text-success">Urutan yang benar:</h5>
+        <div id="dropzones">
+          <div class="dropzone" data-index="0"></div>
+          <div class="dropzone" data-index="1"></div>
+          <div class="dropzone" data-index="2"></div>
+          <div class="dropzone" data-index="3"></div>
+          <div class="dropzone" data-index="4"></div>
+        </div>
+        <button id="checkBtn" class="btn btn-primary mt-3 w-100">Periksa Jawaban</button>
+        <div id="result" class="mt-3 text-center fs-5 fw-bold"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const organsList = ["Mulut", "Kerongkongan", "Lambung", "Usus Halus", "Usus Besar"];
+    const shuffled = organsList.sort(() => 0.5 - Math.random());
+    const organsContainer = document.getElementById("organs");
+
+    // Buat elemen organ
+    shuffled.forEach(name => {
+      const div = document.createElement("div");
+      div.className = "organ col-5";
+      div.draggable = true;
+      div.textContent = name;
+      div.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", name);
+      });
+      organsContainer.appendChild(div);
+    });
+
+    // Dropzones
+    const dropzones = document.querySelectorAll(".dropzone");
+    dropzones.forEach(zone => {
+      zone.addEventListener("dragover", e => e.preventDefault());
+      zone.addEventListener("drop", e => {
+        e.preventDefault();
+        const name = e.dataTransfer.getData("text/plain");
+        zone.textContent = name;
+        zone.dataset.name = name;
+      });
+    });
+
+    // Tombol periksa
+    document.getElementById("checkBtn").addEventListener("click", () => {
+      let correct = 0;
+      dropzones.forEach((zone, index) => {
+        if (zone.dataset.name === organsList[index]) {
+          zone.classList.add("correct");
+          correct++;
+        } else {
+          zone.classList.add("wrong");
+        }
+      });
+
+      const result = document.getElementById("result");
+      if (correct === organsList.length) {
+        result.textContent = "🎉 Hebat! Kamu berhasil mengurutkan semua dengan benar!";
+        result.style.color = "green";
+      } else {
+        result.textContent = "😅 Masih ada yang salah, coba lagi ya!";
+        result.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
