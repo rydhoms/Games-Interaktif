@@ -3,118 +3,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Game IPA: Sistem Pencernaan</title>
+  <title>Kuis IPA - Sistem Pencernaan Manusia</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #f0f9ff;
+      background: #e3f2fd;
       font-family: 'Comic Sans MS', sans-serif;
       padding: 20px;
     }
-    .organ {
-      background-color: #fff;
-      border: 2px solid #007bff;
+    .quiz-box {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .question {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .option {
+      background: #f8f9fa;
       border-radius: 10px;
       padding: 10px;
-      margin: 5px;
+      cursor: pointer;
+      margin: 5px 0;
+      transition: 0.2s;
+    }
+    .option:hover { background: #d6eaff; }
+    .selected { background: #90caf9 !important; color: #fff; }
+    #result {
+      font-size: 22px;
+      font-weight: bold;
       text-align: center;
-      font-size: 18px;
-      cursor: grab;
-    }
-    .dropzone {
-      border: 2px dashed #6c757d;
-      border-radius: 10px;
-      padding: 10px;
-      min-height: 60px;
-      background: #ffffff90;
-      margin-bottom: 10px;
-    }
-    .correct {
-      background-color: #d4edda;
-      border-color: #28a745;
-    }
-    .wrong {
-      background-color: #f8d7da;
-      border-color: #dc3545;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 class="text-center mb-3">🧠 Game IPA: Urutkan Organ Pencernaan</h2>
-    <p class="text-center">Tarik dan letakkan organ di bawah ini sesuai urutan makanan masuk ke tubuh!</p>
-
-    <div class="row">
-      <div class="col-md-6">
-        <h5 class="text-primary">Organ:</h5>
-        <div id="organs" class="d-flex flex-wrap"></div>
+  <div class="quiz-box">
+    <h2 class="text-center mb-3">🧠 Kuis IPA: Sistem Pencernaan</h2>
+    <div id="quiz-container">
+      <div id="question" class="question"></div>
+      <div id="options" class="mt-3"></div>
+      <div class="d-flex justify-content-between mt-4">
+        <button id="prevBtn" class="btn btn-secondary" disabled>Sebelumnya</button>
+        <button id="nextBtn" class="btn btn-primary">Berikutnya</button>
       </div>
-
-      <div class="col-md-6">
-        <h5 class="text-success">Urutan yang benar:</h5>
-        <div id="dropzones">
-          <div class="dropzone" data-index="0"></div>
-          <div class="dropzone" data-index="1"></div>
-          <div class="dropzone" data-index="2"></div>
-          <div class="dropzone" data-index="3"></div>
-          <div class="dropzone" data-index="4"></div>
-        </div>
-        <button id="checkBtn" class="btn btn-primary mt-3 w-100">Periksa Jawaban</button>
-        <div id="result" class="mt-3 text-center fs-5 fw-bold"></div>
-      </div>
+      <div class="mt-3 text-center text-muted" id="progress"></div>
     </div>
+    <div id="result" class="mt-4"></div>
   </div>
 
   <script>
-    const organsList = ["Mulut", "Kerongkongan", "Lambung", "Usus Halus", "Usus Besar"];
-    const shuffled = organsList.sort(() => 0.5 - Math.random());
-    const organsContainer = document.getElementById("organs");
+    const questions = [
+      {q: "Organ pertama tempat makanan masuk disebut?", options: ["Lambung", "Mulut", "Kerongkongan", "Usus"], answer: "Mulut"},
+      {q: "Fungsi gigi adalah untuk?", options: ["Mengunyah makanan", "Mencerna lemak", "Menghasilkan air liur", "Menelan makanan"], answer: "Mengunyah makanan"},
+      {q: "Organ yang menghubungkan mulut dengan lambung adalah?", options: ["Usus", "Kerongkongan", "Hidung", "Paru-paru"], answer: "Kerongkongan"},
+      {q: "Lambung berfungsi untuk?", options: ["Mengolah makanan dengan enzim dan asam", "Menyalurkan darah", "Mengatur suhu tubuh", "Menyimpan oksigen"], answer: "Mengolah makanan dengan enzim dan asam"},
+      {q: "Usus halus berfungsi untuk?", options: ["Menyerap sari-sari makanan", "Mengeluarkan keringat", "Mengalirkan darah", "Mengunyah makanan"], answer: "Menyerap sari-sari makanan"},
+      {q: "Sisa makanan akan dibuang melalui?", options: ["Mulut", "Hidung", "Anus", "Telinga"], answer: "Anus"},
+      {q: "Air liur membantu?", options: ["Mengubah karbohidrat", "Mengunyah lebih keras", "Membuat makanan dingin", "Menyimpan makanan"], answer: "Mengubah karbohidrat"},
+      {q: "Makanan dari mulut ke lambung melalui?", options: ["Usus", "Kerongkongan", "Hidung", "Tenggorokan"], answer: "Kerongkongan"},
+      {q: "Usus besar berfungsi untuk?", options: ["Menyerap air dari sisa makanan", "Menyimpan darah", "Mengunyah makanan", "Mengatur suhu"], answer: "Menyerap air dari sisa makanan"},
+      {q: "Organ terakhir dari sistem pencernaan adalah?", options: ["Anus", "Lambung", "Mulut", "Usus halus"], answer: "Anus"},
+      {q: "Proses mencerna makanan dimulai dari?", options: ["Mulut", "Lambung", "Usus halus", "Kerongkongan"], answer: "Mulut"},
+      {q: "Zat yang membantu mencerna makanan di lambung adalah?", options: ["Air liur", "Asam lambung", "Air biasa", "Darah"], answer: "Asam lambung"},
+      {q: "Organ yang berfungsi menyimpan sementara makanan adalah?", options: ["Kerongkongan", "Lambung", "Usus halus", "Mulut"], answer: "Lambung"},
+      {q: "Fungsi lidah dalam pencernaan adalah?", options: ["Mengecap rasa dan membantu menelan", "Mengunyah makanan", "Menarik udara", "Menelan air"], answer: "Mengecap rasa dan membantu menelan"},
+      {q: "Sisa makanan yang tidak berguna akan dibuang dalam bentuk?", options: ["Air", "Kotoran", "Udara", "Lendir"], answer: "Kotoran"},
+      {q: "Bagian tubuh yang menghasilkan air liur adalah?", options: ["Kelenjar ludah", "Paru-paru", "Kerongkongan", "Lambung"], answer: "Kelenjar ludah"},
+      {q: "Organ yang berbentuk panjang dan berliku-liku adalah?", options: ["Usus halus", "Kerongkongan", "Lambung", "Mulut"], answer: "Usus halus"},
+      {q: "Organ pencernaan yang paling panjang adalah?", options: ["Usus halus", "Lambung", "Mulut", "Kerongkongan"], answer: "Usus halus"},
+      {q: "Makanan berubah menjadi bubur di organ?", options: ["Mulut", "Lambung", "Usus halus", "Usus besar"], answer: "Lambung"},
+      {q: "Sistem pencernaan membantu tubuh untuk?", options: ["Mendapatkan energi", "Bernafas", "Berbicara", "Melihat"], answer: "Mendapatkan energi"}
+    ];
 
-    // Buat elemen organ
-    shuffled.forEach(name => {
-      const div = document.createElement("div");
-      div.className = "organ col-5";
-      div.draggable = true;
-      div.textContent = name;
-      div.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", name);
+    // Ambil 20 soal acak (bisa dikurangi kalau mau)
+    const selected = questions.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+    let current = 0;
+    let score = 0;
+    let answers = [];
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const resultEl = document.getElementById("result");
+    const progressEl = document.getElementById("progress");
+
+    function showQuestion() {
+      const q = selected[current];
+      questionEl.textContent = `(${current + 1}) ${q.q}`;
+      optionsEl.innerHTML = "";
+      q.options.forEach(opt => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = opt;
+        if (answers[current] === opt) div.classList.add("selected");
+        div.onclick = () => {
+          answers[current] = opt;
+          document.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+          div.classList.add("selected");
+        };
+        optionsEl.appendChild(div);
       });
-      organsContainer.appendChild(div);
-    });
 
-    // Dropzones
-    const dropzones = document.querySelectorAll(".dropzone");
-    dropzones.forEach(zone => {
-      zone.addEventListener("dragover", e => e.preventDefault());
-      zone.addEventListener("drop", e => {
-        e.preventDefault();
-        const name = e.dataTransfer.getData("text/plain");
-        zone.textContent = name;
-        zone.dataset.name = name;
-      });
-    });
+      prevBtn.disabled = current === 0;
+      nextBtn.textContent = current === selected.length - 1 ? "Selesai" : "Berikutnya";
+      progressEl.textContent = `Soal ${current + 1} dari ${selected.length}`;
+    }
 
-    // Tombol periksa
-    document.getElementById("checkBtn").addEventListener("click", () => {
-      let correct = 0;
-      dropzones.forEach((zone, index) => {
-        if (zone.dataset.name === organsList[index]) {
-          zone.classList.add("correct");
-          correct++;
-        } else {
-          zone.classList.add("wrong");
-        }
-      });
-
-      const result = document.getElementById("result");
-      if (correct === organsList.length) {
-        result.textContent = "🎉 Hebat! Kamu berhasil mengurutkan semua dengan benar!";
-        result.style.color = "green";
-      } else {
-        result.textContent = "😅 Masih ada yang salah, coba lagi ya!";
-        result.style.color = "red";
+    nextBtn.onclick = () => {
+      if (answers[current] === undefined) {
+        alert("Pilih jawaban dulu ya!");
+        return;
       }
-    });
+      if (current < selected.length - 1) {
+        current++;
+        showQuestion();
+      } else {
+        finishQuiz();
+      }
+    };
+
+    prevBtn.onclick = () => {
+      if (current > 0) {
+        current--;
+        showQuestion();
+      }
+    };
+
+    function finishQuiz() {
+      let correct = 0;
+      selected.forEach((q, i) => {
+        if (answers[i] === q.answer) correct++;
+      });
+      const nilai = Math.round((correct / selected.length) * 100);
+      document.getElementById("quiz-container").style.display = "none";
+      resultEl.innerHTML = `🎉 Skor kamu: <span style="color:blue">${nilai}</span><br>
+      Benar: ${correct} dari ${selected.length} soal<br>
+      ${nilai >= 80 ? "Hebat sekali! 😄" : "Ayo belajar lagi, kamu pasti bisa!"}`;
+    }
+
+    showQuestion();
   </script>
 </body>
 </html>
