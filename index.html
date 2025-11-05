@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daftar File Repository</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { padding: 2rem; background: #f9f9f9; }
+    .file-list a { text-decoration: none; color: #007bff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="mb-4">📂 Daftar File Repository</h2>
+    <ul class="list-group file-list" id="fileList">
+      <li class="list-group-item text-muted">Loading...</li>
+    </ul>
+  </div>
+
+  <script>
+    const username = "rydhoms";     // Ganti dengan username GitHub kamu
+    const repo = "Games-Interaktif";        // Ganti dengan nama repository
+
+    async function loadFiles() {
+      const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/`);
+      const data = await response.json();
+      const list = document.getElementById("fileList");
+      list.innerHTML = "";
+
+      data.forEach(item => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        if (item.type === "dir") {
+          li.innerHTML = `📁 <strong>${item.name}</strong>`;
+        } else {
+          li.innerHTML = `📄 <a href="${item.html_url}" target="_blank">${item.name}</a>`;
+        }
+        list.appendChild(li);
+      });
+    }
+
+    loadFiles();
+  </script>
+</body>
+</html>
